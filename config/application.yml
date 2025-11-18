@@ -1,0 +1,27 @@
+server:
+  port: 8081
+
+app:
+  cpi-integration:
+    host: ${CPI_HOST}
+    username: ${CPI_USERNAME}
+    password: ${CPI_PASSWORD}
+  sync:
+    flowConcurrency: 8
+    packagesConcurrency: 4
+    jobExecutorConcurrency: 4
+    jobQueueCapacity: 8
+    completedJobsRetention: 50
+  repository:
+    # memory | mysql
+    type: mysql
+
+spring:
+  datasource:
+    url: ${MYSQL_URL:jdbc:mysql://localhost:3306/cpisync?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&createDatabaseIfNotExist=true}
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD:root}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    enabled: ${LIQUIBASE_ENABLED:true}

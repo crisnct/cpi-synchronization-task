@@ -1,0 +1,35 @@
+### Project ###
+build
+out
+.gradle
+*.jar
+*.ear
+*.dll
+!gradle/wrapper/gradle-wrapper.jar
+logs
+gradle.properties
+/config
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+/cpi-api-3.13/
+/cpi-api-3.13-sources/

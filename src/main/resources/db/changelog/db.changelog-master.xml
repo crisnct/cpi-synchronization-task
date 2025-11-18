@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+    <changeSet id="1-create-synced-object-history" author="codex">
+        <createTable tableName="synced_object_history">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="technical_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="object_type" type="VARCHAR(64)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint tableName="synced_object_history"
+                             columnNames="technical_name, object_type"
+                             constraintName="uk_synced_object_history_name_type"/>
+    </changeSet>
+
+    <changeSet id="2-create-synced-object-version" author="codex">
+        <createTable tableName="synced_object_version">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="history_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <!-- TODO link the items like in a linkedlist -->
+            <column name="version_number" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modification_date" type="TIMESTAMP"/>
+            <column name="remote_version" type="VARCHAR(255)"/>
+            <column name="deleted" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="synchronized_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="display_name" type="VARCHAR(512)"/>
+            <column name="external_id" type="VARCHAR(255)"/>
+            <column name="parent_technical_name" type="VARCHAR(255)"/>
+            <column name="parent_external_id" type="VARCHAR(255)"/>
+            <column name="creation_date" type="TIMESTAMP"/>
+            <column name="created_by" type="VARCHAR(255)"/>
+            <column name="modified_by" type="VARCHAR(255)"/>
+            <column name="payload" type="LONGBLOB"/>
+            <column name="payload_content_type" type="VARCHAR(255)"/>
+            <column name="payload_file_name" type="VARCHAR(512)"/>
+            <column name="payload_size" type="BIGINT"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="synced_object_version"
+                                 baseColumnNames="history_id"
+                                 referencedTableName="synced_object_history"
+                                 referencedColumnNames="id"
+                                 constraintName="fk_version_history"
+                                 onDelete="CASCADE"/>
+        <addUniqueConstraint tableName="synced_object_version"
+                             columnNames="history_id, version_number"
+                             constraintName="uk_version_history_number"/>
+        <createIndex tableName="synced_object_version" indexName="idx_version_history">
+            <column name="history_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="3-add-validity-columns" author="codex">
+        <addColumn tableName="synced_object_version">
+            <column name="valid_from" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="valid_to" type="TIMESTAMP"/>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>

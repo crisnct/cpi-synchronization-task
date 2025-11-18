@@ -1,0 +1,13 @@
+app:
+  repository:
+    type: memory
+  sync:
+    flowConcurrency: 8
+    packagesConcurrency: 4
+    jobExecutorConcurrency: 4
+    jobQueueCapacity: 8
+    completedJobsRetention: 50
+
+spring:
+  liquibase:
+    enabled: false
