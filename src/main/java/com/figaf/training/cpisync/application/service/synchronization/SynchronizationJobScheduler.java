@@ -28,16 +28,15 @@ public class SynchronizationJobScheduler {
 
     private final Queue<AbstractSynchronizationJob> jobs = SynchronizedQueue.synchronizedQueue(new CircularFifoQueue<>(100));
 
-    public CompletableFuture<SynchronizationSnapshot> startSynchronization(AbstractSynchronizationJob job) {
-        CompletableFuture<SynchronizationSnapshot> result = new CompletableFuture<>();
-        return result.completeAsync(() -> {
+    public CompletableFuture<UUID> startSynchronization(AbstractSynchronizationJob job) {
+        return CompletableFuture.supplyAsync(() -> {
                 jobs.add(job);
                 job.run();
-                return job.getFullSnapshot();
+                return job.getId();
             }, jobExecutor)
             .exceptionally(throwable -> {
                 job.markFailed(throwable);
-                return null;
+                return job.getId();
             });
     }
 

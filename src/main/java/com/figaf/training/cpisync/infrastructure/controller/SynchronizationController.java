@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +39,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class SynchronizationController {
 
-    private final AtomicBoolean SYNC_LOCK = new AtomicBoolean(false);
+    private final ReentrantLock SYNC_LOCK = new ReentrantLock(false);
     private final SyncedObjectsService syncedObjectsService;
     private final SynchronizationJobScheduler scheduler;
     private final SynchronizationMapper mapper;
@@ -47,20 +48,16 @@ public class SynchronizationController {
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public CompletableFuture<ResponseEntity<?>> synchronize(@RequestBody(required = false) SynchronizationRequest request) {
         log.info("POST /synchronizations");
-        if (!SYNC_LOCK.compareAndSet(false, true)) {
+        if (SYNC_LOCK.tryLock()) {
+            Set<String> packageFilters = normalizePackageFilters(request);
+            AbstractSynchronizationJob job = packageFilters == null
+                ? jobFactory.createDefaultJob()
+                : jobFactory.createJob(packageFilters);
+            return scheduler.startSynchronization(job).thenApply(ResponseEntity::ok);
+        } else {
             return CompletableFuture.completedFuture(
                 ResponseEntity.badRequest().body("Synchronization was already started and is in progress..."));
         }
-        SYNC_LOCK.compareAndSet(false, true);
-
-        Set<String> packageFilters = normalizePackageFilters(request);
-        AbstractSynchronizationJob job = packageFilters == null
-            ? jobFactory.createDefaultJob()
-            : jobFactory.createJob(packageFilters);
-
-        CompletableFuture<SynchronizationSnapshot> progress = scheduler.startSynchronization(job);
-        progress.thenRunAsync(() -> SYNC_LOCK.compareAndSet(true, false));
-        return progress.thenApply(ResponseEntity::ok);
     }
 
     @GetMapping(value = "/jobs", produces = MediaType.APPLICATION_JSON_VALUE)

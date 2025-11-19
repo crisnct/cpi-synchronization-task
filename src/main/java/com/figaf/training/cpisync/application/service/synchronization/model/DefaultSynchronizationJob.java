@@ -14,27 +14,7 @@ public class DefaultSynchronizationJob extends AbstractSynchronizationJob {
 
     @Override
     public void run() {
-        try {
-            synchronizationService.runSynchronization(this, packageTechnicalNames);
-        } catch (Exception ex) {
-            if (isInterruptSignal(ex)) {
-                Thread.currentThread().interrupt();
-                log.warn("Synchronization job {} interrupted", this.getId(), ex);
-            } else {
-                log.error("Synchronization job {} failed", this.getId(), ex);
-            }
-            if (this.getStatus() != SynchronizationJobStatus.FAILED) {
-                this.markFailed(ex);
-            }
-            //noinspection ConstantValue
-            throw (ex instanceof RuntimeException) ? (RuntimeException) ex : new IllegalStateException("Synchronization job failed", ex);
-        }
-    }
-
-    private boolean isInterruptSignal(Exception ex) {
-        return ex instanceof InterruptedException
-            || (ex.getCause() instanceof InterruptedException)
-            || Thread.currentThread().isInterrupted();
+        synchronizationService.runSynchronization(this, packageTechnicalNames);
     }
 
 }

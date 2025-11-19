@@ -66,22 +66,18 @@ public class SynchronizationService {
     ) {
         Set<String> packageFilter = normalizePackageFilter(packageTechnicalNames);
         progressTracker.markStarted();
-        try {
-            RequestContext requestContext = RequestContextFactory.createRequestContextForWebApi(connectionParameters);
-            List<IntegrationPackage> packages = integrationPackageClient.getIntegrationPackages(requestContext, null);
-            List<IntegrationPackage> scopedPackages = this.filterPackages(packages, packageFilter);
 
-            Set<String> remotePackages = this.synchronizePackagesAsync(scopedPackages, progressTracker);
-            Set<String> remoteFlows = this.synchronizeFlowsAsync(scopedPackages, progressTracker);
+        RequestContext requestContext = RequestContextFactory.createRequestContextForWebApi(connectionParameters);
+        List<IntegrationPackage> packages = integrationPackageClient.getIntegrationPackages(requestContext, null);
+        List<IntegrationPackage> scopedPackages = this.filterPackages(packages, packageFilter);
 
-            this.markDeletedMissing(remotePackages, SyncedObjectType.INTEGRATION_PACKAGE, progressTracker, packageFilter);
-            this.markDeletedMissing(remoteFlows, SyncedObjectType.INTEGRATION_FLOW, progressTracker, packageFilter);
+        Set<String> remotePackages = this.synchronizePackagesAsync(scopedPackages, progressTracker);
+        Set<String> remoteFlows = this.synchronizeFlowsAsync(scopedPackages, progressTracker);
 
-            progressTracker.markCompleted();
-        } catch (Exception ex) {
-            progressTracker.markFailed(ex);
-            throw ex;
-        }
+        this.markDeletedMissing(remotePackages, SyncedObjectType.INTEGRATION_PACKAGE, progressTracker, packageFilter);
+        this.markDeletedMissing(remoteFlows, SyncedObjectType.INTEGRATION_FLOW, progressTracker, packageFilter);
+
+        progressTracker.markCompleted();
     }
 
     private List<IntegrationPackage> filterPackages(List<IntegrationPackage> packages, Set<String> packageFilter) {

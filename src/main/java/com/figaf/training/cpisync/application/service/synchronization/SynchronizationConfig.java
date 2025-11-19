@@ -36,7 +36,7 @@ public class SynchronizationConfig {
         String flowConcurrency
     ) {
         int concurrentThreads = parsePositive(flowConcurrency, 1);
-        return Executors.newFixedThreadPool(concurrentThreads, SynchronizationThreadFactory.nonDaemon("sync-flow-"));
+        return Executors.newFixedThreadPool(concurrentThreads, Executors.defaultThreadFactory());
     }
 
     @Bean(name = "integrationPackagesJobExecutor")
@@ -46,7 +46,7 @@ public class SynchronizationConfig {
         String packagesConcurrency
     ) {
         int concurrentThreads = parsePositive(packagesConcurrency, 1);
-        return Executors.newFixedThreadPool(concurrentThreads, SynchronizationThreadFactory.nonDaemon("sync-package-"));
+        return Executors.newFixedThreadPool(concurrentThreads, Executors.defaultThreadFactory());
     }
 
     private int parsePositive(String value, int defaultValue) {
