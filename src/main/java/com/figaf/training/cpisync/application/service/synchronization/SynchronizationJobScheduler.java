@@ -10,12 +10,12 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ThreadPoolExecutor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.apache.commons.collections4.queue.SynchronizedQueue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -24,7 +24,7 @@ public class SynchronizationJobScheduler {
 
     @Autowired
     @Qualifier("synchronizationJobExecutor")
-    private ThreadPoolTaskExecutor jobExecutor;
+    private ThreadPoolExecutor jobExecutor;
 
     private final Queue<AbstractSynchronizationJob> jobs = SynchronizedQueue.synchronizedQueue(new CircularFifoQueue<>(100));
 
@@ -41,7 +41,7 @@ public class SynchronizationJobScheduler {
     }
 
     public boolean hasRunningJobs() {
-        return jobExecutor.getThreadPoolExecutor().getActiveCount() > 0;
+        return jobExecutor.getActiveCount() > 0;
     }
 
     public Optional<SynchronizationSnapshot> getProgress(UUID jobId) {
@@ -58,7 +58,7 @@ public class SynchronizationJobScheduler {
     }
 
     public void clearAll() {
-        jobExecutor.getThreadPoolExecutor().purge();
+        jobExecutor.purge();
         jobs.clear();
     }
 

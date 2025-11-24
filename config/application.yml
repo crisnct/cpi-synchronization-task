@@ -10,7 +10,6 @@ app:
     flowConcurrency: 8
     packagesConcurrency: 4
     jobExecutorConcurrency: 4
-    jobQueueCapacity: 8
     completedJobsRetention: 50
   repository:
     # memory | mysql
