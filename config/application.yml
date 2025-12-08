@@ -16,6 +16,9 @@ app:
     type: mysql
 
 spring:
+  threads:
+    virtual:
+      enabled: true
   datasource:
     url: ${MYSQL_URL:jdbc:mysql://localhost:3306/cpisync?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&createDatabaseIfNotExist=true}
     username: ${MYSQL_USER:root}

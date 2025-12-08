@@ -14,7 +14,7 @@ public class SynchronizationConfig {
         @Value("${app.sync.jobExecutorConcurrency:1}") String jobExecutorConcurrency
     ) {
         int concurrentThreads = parsePositive(jobExecutorConcurrency, 1);
-        return (ThreadPoolExecutor)Executors.newFixedThreadPool(concurrentThreads, Executors.defaultThreadFactory());
+        return (ThreadPoolExecutor)Executors.newFixedThreadPool(concurrentThreads, Thread.ofVirtual().factory());
     }
 
     @Bean(name = "integrationFlowJobExecutor")
@@ -24,7 +24,7 @@ public class SynchronizationConfig {
         String flowConcurrency
     ) {
         int concurrentThreads = parsePositive(flowConcurrency, 1);
-        return (ThreadPoolExecutor)Executors.newFixedThreadPool(concurrentThreads, Executors.defaultThreadFactory());
+        return (ThreadPoolExecutor)Executors.newFixedThreadPool(concurrentThreads, Thread.ofVirtual().factory());
     }
 
     @Bean(name = "integrationPackagesJobExecutor")
@@ -34,7 +34,7 @@ public class SynchronizationConfig {
         String packagesConcurrency
     ) {
         int concurrentThreads = parsePositive(packagesConcurrency, 1);
-        return (ThreadPoolExecutor)Executors.newFixedThreadPool(concurrentThreads, Executors.defaultThreadFactory());
+        return (ThreadPoolExecutor)Executors.newFixedThreadPool(concurrentThreads, Thread.ofVirtual().factory());
     }
 
     private int parsePositive(String value, int defaultValue) {
